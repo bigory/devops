@@ -1,0 +1,13 @@
+---
+  - name: Wait for server to restart
+    local_action:
+        module: wait_for
+          host={{ inventory_hostname }}
+          port=4422
+          delay=1
+          timeout=300
+
+  - name: restart zabbix-agent
+    service:
+         name=zabbix-agent 
+         state=restarted

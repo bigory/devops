@@ -1,0 +1,88 @@
+---
+  - name: Change root password
+    user:
+      name=root
+      password={{ root_password }}
+
+  - name: add user it
+    user:
+      name=it
+      password={{ it_password }}
+      update_password=always
+      shell=/bin/bash
+      home=/home/it
+      groups="sudo"
+
+  - name: Manage and Enable firewall
+    ufw:
+      rule=allow
+      port={{ item }}
+      proto=tcp
+      state=enabled
+    with_items:
+      - "{{ 4422 }}"
+
+  - name: Edit SSH Port And disable root ssh from password
+    lineinfile:
+      dest=/etc/ssh/sshd_config
+      regexp="{{ item.regexp }}"
+      line="{{ item.line }}"
+    with_items:
+      -  { regexp: '^Port 22', line: 'Port 4422' }
+      -  { regexp: '^PermitRootLogin yes', line: 'PermitRootLogin without-password' }
+
+  - name: Install packages
+    apt:
+       pkg={{ item }}
+       state=installed
+       update-cache=yes
+    with_items:
+       - mc
+       - htop
+       - ntp
+       - ntpdate
+
+  - name: Set timezone variables
+    copy:
+       content='Europe/Minsk'
+       dest=/etc/timezone
+       owner=root
+       group=root
+       mode=0644
+
+  - name: Configure timezone
+    command: dpkg-reconfigure --frontend noninteractive tzdata
+
+
+  - name: Copy zabbix scripts
+    copy:
+       src={{ item }}
+       dest=/usr/local/bin/{{ item }}
+       owner=root
+       group=root
+       mode=0755
+    with_items:
+      - containerCount.sh
+      - containerHelper.py
+
+
+  - name: Adding Zabbix ubuntu repo
+    apt_repository: repo='deb http://repo.zabbix.com/zabbix/3.0/ubuntu trusty main' state=present 
+
+  - name:  Installing zabbix-agent
+    apt: 
+       name: zabbix-agent
+       force: yes
+       allow_unauthenticated: yes
+       state: latest
+       update_cache: yes
+       cache_valid_time: 0
+    
+
+  - name: configure zabbix agent
+    template: src=zabbix_agentd.conf.j2 dest=/etc/zabbix/zabbix_agentd.conf
+    notify:
+        restart zabbix-agent
+
+  - name: Configure ufw rules
+    ufw: rule=allow port=10050 proto=tcp

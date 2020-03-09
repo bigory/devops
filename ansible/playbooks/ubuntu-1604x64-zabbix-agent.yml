@@ -1,0 +1,4 @@
+- hosts: ubuntu-1604x64-zabbix-agent
+  roles:
+     - ubuntu-1604x64-zabbix-agent
+
