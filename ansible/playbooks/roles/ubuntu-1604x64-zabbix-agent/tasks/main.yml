@@ -1,0 +1,31 @@
+---
+  - name: zabbix scripts
+    copy:
+       src={{ item }}
+       dest=/usr/local/bin/{{ item }}
+       owner=root
+       group=root
+       mode=0755
+    with_items:
+      - containerCount.sh
+      - containerHelper.py
+
+  - name: Adding Zabbix ubuntu repo
+    apt_repository: repo='deb http://repo.zabbix.com/zabbix/3.0/ubuntu trusty main' state=present 
+
+  - name:  Installing zabbix-agent
+    apt: 
+       name: zabbix-agent
+       force: yes
+       allow_unauthenticated: yes
+       state: latest
+       update_cache: yes
+       cache_valid_time: 0
+    
+
+  - name: configure zabbix agent
+    template: src=zabbix_agentd.conf.j2 dest=/etc/zabbix/zabbix_agentd.conf
+    notify:
+        restart zabbix-agent
+
+
