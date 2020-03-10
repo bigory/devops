@@ -3,7 +3,7 @@
    - apt_repository: repo deb http://repo.zabbix.com/zabbix/3.4/ubuntu/pool/main/z/zabbix/ trusty main state present
 
   - name:  Installing zabbix-agent
-    apt: 
+    - apt:
        name: zabbix-agent
        force: yes
        allow_unauthenticated: yes
