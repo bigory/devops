@@ -1,6 +1,6 @@
 ---
    - name: Adding Zabbix ubuntu repo
-    apt_repository:
+   - apt_repository:
     repo: deb http://repo.zabbix.com/zabbix/3.4/ubuntu/pool/main/z/zabbix/ trusty main
     state: present
 
