@@ -1,6 +1,6 @@
 ---
    - name: Adding Zabbix ubuntu repo
-    apt_repository: repo='deb http://repo.zabbix.com/zabbix/3.4/ubuntu/ trusty main' state=present
+    apt_repository: repo='deb http://repo.zabbix.com/zabbix/3.4/ubuntu/pool/ trusty main' state=present
 
   - name:  Installing zabbix-agent
     apt: 
